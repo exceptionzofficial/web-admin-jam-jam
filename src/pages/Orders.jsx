@@ -21,6 +21,7 @@ export default function Orders() {
     const [service, setService] = useState('all');
     const [startDate, setStartDate] = useState('');
     const [endDate, setEndDate] = useState('');
+    const [paymentMethod, setPaymentMethod] = useState('all');
     const [showFilter, setShowFilter] = useState(false);
 
     const load = useCallback(async () => {
@@ -41,18 +42,34 @@ export default function Orders() {
 
     useEffect(() => { load(); }, [load]);
 
-    const filterLocal = (list, q) => {
-        if (!q.trim()) { setFiltered(list); return; }
+    const filterLocal = (list, q, pm) => {
+        let filteredList = list;
+
+        // Filter by payment method
+        if (pm !== 'all') {
+            filteredList = filteredList.filter(o => {
+                const method = (o.paymentMethod || '').toLowerCase();
+                if (pm === 'Cash') return !method.includes('upi') && !method.includes('qr');
+                if (pm === 'UPI') return method.includes('upi') || method.includes('qr');
+                return true;
+            });
+        }
+
+        if (!q.trim()) { setFiltered(filteredList); return; }
         const lq = q.toLowerCase();
-        setFiltered(list.filter(o =>
+        setFiltered(filteredList.filter(o =>
             (o.customerName && o.customerName.toLowerCase().includes(lq)) ||
             (o.orderId && o.orderId.toLowerCase().includes(lq)) ||
             (o.service && o.service.toLowerCase().includes(lq))
         ));
     };
 
-    const handleSearch = (q) => { setSearch(q); filterLocal(orders, q); };
+    const handleSearch = (q) => { setSearch(q); filterLocal(orders, q, paymentMethod); };
+    const handlePaymentFilter = (pm) => { setPaymentMethod(pm); filterLocal(orders, search, pm); };
+
     const total = filtered.reduce((s, o) => s + (o.totalAmount || 0), 0);
+    const cashTotal = filtered.filter(o => !((o.paymentMethod || '').toLowerCase().includes('upi') || (o.paymentMethod || '').toLowerCase().includes('qr'))).reduce((s, o) => s + (o.totalAmount || 0), 0);
+    const upiTotal = filtered.filter(o => (o.paymentMethod || '').toLowerCase().includes('upi') || (o.paymentMethod || '').toLowerCase().includes('qr')).reduce((s, o) => s + (o.totalAmount || 0), 0);
 
     const exportCsv = () => {
         if (!filtered.length) return;
@@ -60,10 +77,40 @@ export default function Orders() {
         const rows = filtered.map(o =>
             `${o.orderId},${o.service},${o.customerName || 'Walk-in'},${o.totalAmount || 0},${fmtDate(o.createdAt || o.timestamp)},${o.paymentMethod || 'N/A'}`
         ).join('\n');
-        const blob = new Blob([header + rows + `\n\nTotal: ${filtered.length} orders, Revenue: ${fmt(total)}`], { type: 'text/csv' });
+        const blob = new Blob([header + rows + `\n\nTotal: ${filtered.length} orders, Revenue: ${total}, Cash: ${cashTotal}, UPI/QR: ${upiTotal}`], { type: 'text/csv' });
         const url = URL.createObjectURL(blob);
         const a = document.createElement('a');
         a.href = url; a.download = `JamJam_Orders_${new Date().toISOString().slice(0, 10)}.csv`;
+        a.click(); URL.revokeObjectURL(url);
+    };
+
+    const exportBarCsv = () => {
+        const barOrders = orders.filter(o => o.service === 'Bar');
+        if (!barOrders.length) return alert('No Bar orders found for this period');
+        const totalBar = barOrders.reduce((s, o) => s + (o.totalAmount || 0), 0);
+        const header = 'Order ID,Service,Customer,Amount,Date,Payment\n';
+        const rows = barOrders.map(o =>
+            `${o.orderId},${o.service},${o.customerName || 'Walk-in'},${o.totalAmount || 0},${fmtDate(o.createdAt || o.timestamp)},${o.paymentMethod || 'N/A'}`
+        ).join('\n');
+        const blob = new Blob([header + rows + `\n\nTotal: ${barOrders.length} Bar orders, Revenue: ${totalBar}`], { type: 'text/csv' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url; a.download = `JamJam_Bar_Bills_${new Date().toISOString().slice(0, 10)}.csv`;
+        a.click(); URL.revokeObjectURL(url);
+    };
+
+    const exportOtherCsv = () => {
+        const otherOrders = orders.filter(o => o.service !== 'Bar');
+        if (!otherOrders.length) return alert('No other service orders found');
+        const totalOther = otherOrders.reduce((s, o) => s + (o.totalAmount || 0), 0);
+        const header = 'Order ID,Service,Customer,Amount,Date,Payment\n';
+        const rows = otherOrders.map(o =>
+            `${o.orderId},${o.service},${o.customerName || 'Walk-in'},${o.totalAmount || 0},${fmtDate(o.createdAt || o.timestamp)},${o.paymentMethod || 'N/A'}`
+        ).join('\n');
+        const blob = new Blob([header + rows + `\n\nTotal: ${otherOrders.length} Other service orders, Revenue: ${totalOther}`], { type: 'text/csv' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url; a.download = `JamJam_Service_Bills_${new Date().toISOString().slice(0, 10)}.csv`;
         a.click(); URL.revokeObjectURL(url);
     };
 
@@ -78,7 +125,7 @@ export default function Orders() {
     };
 
     const clearFilters = () => {
-        setStartDate(''); setEndDate(''); setService('all'); setShowFilter(false);
+        setStartDate(''); setEndDate(''); setService('all'); setPaymentMethod('all'); setShowFilter(false);
     };
 
     if (loading) return <div className="loading-container"><div className="loading-spinner" /><p>Loading Orders...</p></div>;
@@ -91,6 +138,12 @@ export default function Orders() {
                 <div className="page-header-actions">
                     <button className="btn btn-outline" onClick={() => setShowFilter(true)}>
                         <MdFilterList size={18} /> Filters
+                    </button>
+                    <button className="btn btn-outline" onClick={exportBarCsv} title="Download Bar invoices only">
+                        <MdDownload size={18} /> Export Bar Bills
+                    </button>
+                    <button className="btn btn-outline" onClick={exportOtherCsv} title="Download non-Bar invoices">
+                        <MdDownload size={18} /> Export Other Bills
                     </button>
                     <button className="btn btn-primary" onClick={exportCsv}>
                         <MdDownload size={18} /> Export CSV
@@ -117,11 +170,32 @@ export default function Orders() {
                 ))}
             </div>
 
+            {/* Payment Filter Chips */}
+            <div className="filter-chips" style={{ marginTop: -8 }}>
+                {['all', 'Cash', 'UPI'].map(pm => (
+                    <button key={pm} className={`filter-chip ${paymentMethod === pm ? 'active' : ''}`}
+                        onClick={() => handlePaymentFilter(pm)}
+                    >
+                        {pm === 'all' ? 'All Payments' : pm}
+                    </button>
+                ))}
+            </div>
+
             {/* Summary */}
             <div className="summary-bar">
                 <div className="summary-item">
                     <div className="summary-value">{filtered.length}</div>
                     <div className="summary-label">Orders</div>
+                </div>
+                <div className="summary-divider" />
+                <div className="summary-item">
+                    <div className="summary-value" style={{ color: '#22C55E' }}>{fmt(cashTotal)}</div>
+                    <div className="summary-label">Cash</div>
+                </div>
+                <div className="summary-divider" />
+                <div className="summary-item">
+                    <div className="summary-value" style={{ color: '#3B82F6' }}>{fmt(upiTotal)}</div>
+                    <div className="summary-label">UPI / QR</div>
                 </div>
                 <div className="summary-divider" />
                 <div className="summary-item">

@@ -5,7 +5,7 @@ import { getTaxSettings, updateTaxSetting } from '../services/api';
 const SERVICE_COLORS = {
     Games: '#8B5CF6', Restaurant: '#F97316', Bakery: '#EC4899',
     Juice: '#22C55E', Massage: '#06B6D4', Pool: '#3B82F6',
-    Bar: '#A855F7', Combo: '#F97316',
+    Bar: '#A855F7', Combo: '#F97316', Theater: '#8B5CF6',
 };
 
 export default function TaxSettings() {

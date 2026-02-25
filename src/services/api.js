@@ -84,5 +84,17 @@ export const getTaxSettings = () => apiCall('/tax-settings');
 export const updateTaxSetting = (serviceId, taxPercent) =>
     apiCall(`/tax-settings/${serviceId}`, { method: 'PUT', body: JSON.stringify({ taxPercent }) });
 
+// ===== THEATER =====
+export const getTheaterShows = () => apiCall('/theater/shows');
+export const createTheaterShow = (data) => apiCall('/theater/shows', { method: 'POST', body: JSON.stringify(data) });
+export const updateTheaterShow = (id, data) => apiCall(`/theater/shows/${id}`, { method: 'PUT', body: JSON.stringify(data) });
+export const deleteTheaterShow = (id) => apiCall(`/theater/shows/${id}`, { method: 'DELETE' });
+
+// ===== FUNCTION HALLS =====
+export const getFunctionHalls = () => apiCall('/function-halls');
+export const createFunctionHall = (data) => apiCall('/function-halls', { method: 'POST', body: JSON.stringify(data) });
+export const updateFunctionHall = (id, data) => apiCall(`/function-halls/${id}`, { method: 'PUT', body: JSON.stringify(data) });
+export const deleteFunctionHall = (id) => apiCall(`/function-halls/${id}`, { method: 'DELETE' });
+
 // ===== BOOKINGS =====
 export const getBookings = () => apiCall('/bookings');

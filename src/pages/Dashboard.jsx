@@ -77,10 +77,12 @@ export default function Dashboard() {
 
     const exportReport = () => {
         if (!stats) return;
-        const rows = ['Period,Revenue,Orders,Avg Order Value'];
+        const rows = ['Period,Revenue,Cash,UPI,Orders,Avg Order Value'];
         ['today', 'week', 'month', 'year'].forEach(p => {
             const pd = stats[p] || {};
-            rows.push(`${p},${pd.revenue || 0},${pd.orderCount || 0},${pd.orderCount ? Math.round(pd.revenue / pd.orderCount) : 0}`);
+            const cash = pd.byPayment?.cash || 0;
+            const upi = pd.byPayment?.upi || 0;
+            rows.push(`${p},${pd.revenue || 0},${cash},${upi},${pd.orderCount || 0},${pd.orderCount ? Math.round(pd.revenue / pd.orderCount) : 0}`);
         });
         rows.push('');
         rows.push(`Service Breakdown (${period})`);
@@ -131,6 +133,14 @@ export default function Dashboard() {
                     <div className="revenue-footer-item">
                         <MdAttachMoney size={18} />
                         <span>Avg {fmt(d.orderCount ? Math.round(d.revenue / d.orderCount) : 0)}</span>
+                    </div>
+                </div>
+                <div className="revenue-footer" style={{ borderTop: '1px solid rgba(255,255,255,0.1)', paddingTop: 12 }}>
+                    <div className="revenue-footer-item">
+                        <span style={{ color: '#22C55E', fontWeight: 'bold' }}>Cash: {fmt(d.byPayment?.cash)}</span>
+                    </div>
+                    <div className="revenue-footer-item">
+                        <span style={{ color: '#3B82F6', fontWeight: 'bold' }}>UPI: {fmt(d.byPayment?.upi)}</span>
                     </div>
                 </div>
             </div>

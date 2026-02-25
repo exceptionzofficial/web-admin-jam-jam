@@ -5,7 +5,7 @@ import {
     MdRestaurantMenu, MdSportsEsports, MdLocalBar, MdCake,
     MdLocalDrink, MdSpa, MdPool, MdMeetingRoom, MdSettings,
     MdInventory, MdMenu, MdClose, MdDarkMode, MdLightMode,
-    MdKeyboardArrowLeft, MdKeyboardArrowRight
+    MdKeyboardArrowLeft, MdKeyboardArrowRight, MdMovie, MdFoundation
 } from 'react-icons/md';
 import './Layout.css';
 
@@ -26,6 +26,8 @@ const NAV_ITEMS = [
     { path: '/juice', label: 'Juice Bar', icon: MdLocalDrink },
     { path: '/massage', label: 'Massage', icon: MdSpa },
     { path: '/pool', label: 'Pool', icon: MdPool },
+    { path: '/theater', label: 'Theater Packages', icon: MdMovie },
+    { path: '/function-hall', label: 'Function Halls', icon: MdFoundation },
     { type: 'divider', label: 'Settings' },
     { path: '/rooms', label: 'Rooms', icon: MdMeetingRoom },
     { path: '/tax-settings', label: 'Tax Settings', icon: MdSettings },

@@ -14,6 +14,8 @@ import JuiceManagement from './pages/JuiceManagement';
 import MassageManagement from './pages/MassageManagement';
 import PoolManagement from './pages/PoolManagement';
 import RoomsManagement from './pages/RoomsManagement';
+import TheaterManagement from './pages/TheaterManagement';
+import FunctionHallManagement from './pages/FunctionHallManagement';
 import TaxSettings from './pages/TaxSettings';
 import './pages/Pages.css';
 
@@ -36,6 +38,8 @@ export default function App() {
             <Route path="/massage" element={<MassageManagement />} />
             <Route path="/pool" element={<PoolManagement />} />
             <Route path="/rooms" element={<RoomsManagement />} />
+            <Route path="/theater" element={<TheaterManagement />} />
+            <Route path="/function-hall" element={<FunctionHallManagement />} />
             <Route path="/tax-settings" element={<TaxSettings />} />
           </Routes>
         </Layout>

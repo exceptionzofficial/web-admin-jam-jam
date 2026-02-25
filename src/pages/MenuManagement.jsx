@@ -4,6 +4,7 @@ import CrudPage from '../components/CrudPage';
 import { getMenuItems, createMenuItem, updateMenuItem, deleteMenuItem } from '../services/api';
 
 const CATEGORIES = ['Starters', 'Main Course', 'Biryani', 'Breads', 'Chinese', 'Desserts', 'Beverages', 'Soups', 'Salads'];
+const BAR_CATEGORIES = ['whiskey', 'whisky', 'beer', 'wine', 'cocktails', 'vodka', 'gin', 'rum', 'snacks', 'brandy', 'scotch', 'liquor', 'spirit'];
 
 export default function MenuManagement() {
     return (
@@ -11,7 +12,10 @@ export default function MenuManagement() {
             title="Restaurant Menu"
             icon={MdRestaurantMenu}
             color="#F97316"
-            fetchFn={getMenuItems}
+            fetchFn={async () => {
+                const items = await getMenuItems();
+                return items.filter(i => !BAR_CATEGORIES.includes(i.category?.toLowerCase()));
+            }}
             createFn={createMenuItem}
             updateFn={updateMenuItem}
             deleteFn={deleteMenuItem}
