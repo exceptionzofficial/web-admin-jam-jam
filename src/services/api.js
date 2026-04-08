@@ -1,5 +1,7 @@
 // Web Admin API Service – JamJam Resort
+// const API_BASE_URL = 'http://localhost:3000/api';
 const API_BASE_URL = 'https://jamjambackendsettlo.vercel.app/api';
+
 
 const apiCall = async (endpoint, options = {}) => {
     const url = `${API_BASE_URL}${endpoint}`;
